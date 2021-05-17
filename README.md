@@ -1,15 +1,15 @@
-# binance-api-node [![build](https://img.shields.io/travis/Ashlar/binance-api-node/master.svg?style=flat-square)](https://travis-ci.org/Ashlar/binance-api-node) [![cover](https://img.shields.io/coveralls/github/Ashlar/binance-api-node/master?style=flat-square)](https://coveralls.io/github/Ashlar/binance-api-node?branch=master) [![bnb](https://img.shields.io/badge/binance-winner-yellow.svg?style=flat-square)](https://github.com/binance-exchange/binance-api-node)
+# binance-api-full-node [![cover](https://img.shields.io/coveralls/github/Filip3Dev/binance-api-full-node/master?style=flat-square)](https://coveralls.io/github/Filip3Dev/binance-api-full-node?branch=master) [![bnb](https://img.shields.io/badge/binance-winner-yellow.svg?style=flat-square)](https://github.com/binance-exchange/binance-api-full-node)
 
 > A complete API wrapper for the [Binance](https://binance.com) API.
 
 Note: This wrapper uses Promises, if they are not supported in your environment, you might
 want to add [a polyfill](https://github.com/stefanpenner/es6-promise) for them.
 
-For PRs or issues, head over to the [source repository](https://github.com/Ashlar/binance-api-node).
+For PRs or issues, head over to the [source repository](https://github.com/Filip3Dev/binance-api-full-node).
 
 ### Installation
 
-    yarn add binance-api-node
+    yarn add binance-api-full-node
 
 ### Getting started
 
@@ -18,7 +18,7 @@ you don't plan on doing authenticated calls. You can create an api key
 [here](https://www.binance.com/userCenter/createApi.html).
 
 ```js
-import Binance from 'binance-api-node'
+import Binance from 'binance-api-full-node'
 
 const client = Binance()
 
@@ -35,7 +35,7 @@ client.time().then(time => console.log(time))
 If you do not have an appropriate babel config, you will need to use the basic commonjs requires.
 
 ```js
-const Binance = require('binance-api-node').default
+const Binance = require('binance-api-full-node').default
 ```
 
 Every REST method returns a Promise, making this library [async await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/async_function) ready.
@@ -3400,7 +3400,7 @@ An utility error code map is also being exported by the package in order for you
 conditionals upon specific errors that could occur while using the API.
 
 ```js
-import Binance, { ErrorCodes } from 'binance-api-node'
+import Binance, { ErrorCodes } from 'binance-api-full-node'
 
 console.log(ErrorCodes.INVALID_ORDER_TYPE) // -1116
 ```
