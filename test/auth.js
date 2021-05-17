@@ -174,6 +174,12 @@ const main = () => {
     t.truthy(Array.isArray(history.depositList))
   })
 
+  test('[REST] liquidPair', async t => {
+    const pair = await client.liquidPair({ poolId: 32 })
+    t.is(pair.length, 1)
+    t.truthy(Array.isArray(pair))
+  })
+
   test('[REST] withdrawHistory', async t => {
     const history = await client.withdrawHistory()
     t.true(history.success)

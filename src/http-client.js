@@ -337,16 +337,17 @@ export default opts => {
     getOrderOco: payload => privCall('/api/v3/orderList', payload),
     cancelOrder: payload => privCall('/api/v3/order', payload, 'DELETE'),
     cancelOrderOco: payload => privCall('/api/v3/orderList', payload, 'DELETE'),
-
+    
     cancelOpenOrders: payload => privCall('/api/v3/openOrders', payload, 'DELETE'),
     openOrders: payload => privCall('/api/v3/openOrders', payload),
     allOrders: payload => privCall('/api/v3/allOrders', payload),
-
+    
     allOrdersOCO: payload => privCall('/api/v3/allOrderList', payload),
-
+    
     accountInfo: payload => privCall('/api/v3/account', payload),
     myTrades: payload => privCall('/api/v3/myTrades', payload),
-
+    
+    liquidPair: payload => privCall('/sapi/v1/bswap/liquidity', payload),
     withdraw: payload => privCall('/sapi/v1/capital/withdraw/apply', payload, 'POST'),
     withdrawHistory: payload => privCall('/sapi/v1/capital/withdraw/history', payload),
     depositHistory: payload => privCall('/sapi/v1/capital/deposit/hisrec', payload),

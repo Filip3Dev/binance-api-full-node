@@ -128,7 +128,6 @@ declare module 'binance-api-node' {
     FAILURE = 5,
     COMPLETED = 6,
   }
-
   export interface WithdrawHistoryResponse {
     withdrawList: {
       id: string
@@ -139,6 +138,17 @@ declare module 'binance-api-node' {
       txId: string
       applyTime: number
       status: WithdrawStatus
+    }[]
+    success: boolean
+  }
+
+  export interface LiquidityResponse {
+    liquidityList: {
+      poolId: number
+      poolName: string
+      updateTime: number
+      liquidity: object
+      share: object
     }[]
     success: boolean
   }
@@ -314,6 +324,9 @@ declare module 'binance-api-node' {
       startTime?: number
       endTime?: number
     }): Promise<WithdrawHistoryResponse>
+    liquidPair(options: {
+      poolId: number
+    }): Promise<LiquidityResponse>
     depositHistory(options: {
       asset: string
       status?: number
