@@ -1,7 +1,7 @@
 {
-  "name": "binance-api-node",
-  "version": "0.10.43",
-  "description": "A node API wrapper for Binance",
+  "name": "binance-api-full-node",
+  "version": "0.1.0",
+  "description": "A node full API wrapper for Binance",
   "main": "dist",
   "files": [
     "dist",
@@ -40,7 +40,7 @@
     "prettier": "^1.19.1"
   },
   "engines": {
-    "yarn": ">= 1.0.0"
+    "node": ">= 10.0"
   },
   "ava": {
     "require": [
@@ -52,7 +52,11 @@
       "!test/utils.js"
     ]
   },
-  "author": "Balthazar Gronon <git@balthazar.dev>",
-  "homepage": "https://github.com/Ashlar/binance-api-node",
+  "author": "Fillipe Machado <filipe.machado@jussi.com.br>",
+  "homepage": "https://github.com/Filip3Dev/binance-api-node",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Filip3Dev/binance-api-node.git"
+  },
   "license": "MIT"
 }
