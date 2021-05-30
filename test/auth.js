@@ -174,6 +174,24 @@ const main = () => {
     t.truthy(Array.isArray(history.depositList))
   })
 
+  test('[REST] fixedProjectPosition', async t => {
+    const pair = await client.fixedProjectPosition({ asset: "USDT"  })
+    t.is(pair.length, 0)
+    t.truthy(Array.isArray(pair))
+  })
+
+  test('[REST] getFixedAndProjectPosition', async t => {
+    const pair = await client.getFixedAndProjectPosition({ type: "CUSTOMIZED_FIXED"  }) 
+    t.truthy(pair.length)
+    t.truthy(Array.isArray(pair))
+  })
+
+  test('[REST] getFlexibleProductPosition', async t => {
+    const pair = await client.getFlexibleProductPosition({ asset: "USDT"  })
+    t.truthy(pair.length)
+    t.truthy(Array.isArray(pair))
+  })
+
   test('[REST] liquidPair', async t => {
     const pair = await client.liquidPair({ poolId: 32 })
     t.is(pair.length, 1)

@@ -348,6 +348,9 @@ export default opts => {
     myTrades: payload => privCall('/api/v3/myTrades', payload),
     
     liquidPair: payload => privCall('/sapi/v1/bswap/liquidity', payload),
+    fixedProjectPosition: payload => privCall('/sapi/v1/lending/project/position/list', payload),
+    getFixedAndProjectPosition: payload => privCall('/sapi/v1/lending/project/list', payload),
+    getFlexibleProductPosition: payload => privCall('/sapi/v1/lending/daily/token/position', payload),
     withdraw: payload => privCall('/sapi/v1/capital/withdraw/apply', payload, 'POST'),
     withdrawHistory: payload => privCall('/sapi/v1/capital/withdraw/history', payload),
     depositHistory: payload => privCall('/sapi/v1/capital/deposit/hisrec', payload),
