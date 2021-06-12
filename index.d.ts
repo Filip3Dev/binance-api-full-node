@@ -166,6 +166,17 @@ declare module 'binance-api-node' {
     }
   }
 
+  export interface BNBBurn {
+    spotBNBBurn: boolean;
+    interestBNBBurn: boolean; 
+  }
+  
+  export interface SetBNBBurnOptions {
+    spotBNBBurn: "true" | "false";
+    interestBNBBurn: "true" | "false"; 
+    recvWindow?: number;
+ }
+
   export interface AccountSnapshot {
     code: number
     msg: string
@@ -186,6 +197,10 @@ declare module 'binance-api-node' {
   export type GetOrderOptions =
     | { symbol: string; orderId: number }
     | { symbol: string; origClientOrderId: string }
+
+  export type GetOrderOcoOptions =
+  | { orderListId: number }
+  | { listClientOrderId: string }
 
   export interface GetInfo {
     spot: GetInfoDetails
@@ -278,17 +293,32 @@ declare module 'binance-api-node' {
       useServerTime?: boolean
     }): Promise<MyTrade[]>
     getOrder(options: GetOrderOptions & { useServerTime?: boolean }): Promise<QueryOrderResult>
+    getOrderOco(options: GetOrderOcoOptions & { useServerTime?: boolean }): Promise<QueryOrderOcoResult>
     cancelOrder(options: {
       symbol: string
       orderId: number
       useServerTime?: boolean
     }): Promise<CancelOrderResult>
+    cancelOrderOco(options: {
+      symbol: string
+      orderListId: number
+      useServerTime?: boolean
+    }): Promise<CancelOrderOcoResult>
     cancelOpenOrders(options: {
       symbol: string
       useServerTime?: boolean
     }): Promise<CancelOrderResult[]>
-    openOrders(options: { symbol?: string; useServerTime?: boolean }): Promise<QueryOrderResult[]>
-    allOrders(options: { symbol?: string; useServerTime?: boolean }): Promise<QueryOrderResult[]>
+    openOrders(options: { symbol?: string; recvWindow?: number; useServerTime?: boolean }): Promise<QueryOrderResult[]>
+    allOrders(options: { 
+       symbol?: string; 
+       orderId?: number; 
+       startTime?: number;
+       endTime?: number;
+       limit?: number;
+       recvWindow?: number;
+       timestamp?: number;
+       useServerTime?: boolean 
+     }): Promise<QueryOrderResult[]>
     allOrdersOCO(options: {
       timestamp: number
       fromId?: number
@@ -312,6 +342,8 @@ declare module 'binance-api-node' {
       name?: string
     }): Promise<WithrawResponse>
     assetDetail(): Promise<AssetDetail>
+    getBnbBurn(): Promise<BNBBurn>
+    setBnbBurn(opts: SetBNBBurnOptions): Promise<BNBBurn>
     accountSnapshot(options: {
       type: string
       startTime?: number
@@ -377,6 +409,10 @@ declare module 'binance-api-node' {
       useServerTime?: boolean
     }): Promise<QueryOrderResult[]>
     futuresPositionRisk(options?: { recvWindow: number }): Promise<PositionRiskResult[]>
+    futuresLeverageBracket(options?: { 
+      symbol?: string,
+      recvWindow: number
+    }): Promise<LeverageBracketResult[]>
     futuresAccountBalance(options?: { recvWindow: number }): Promise<FuturesBalanceResult[]>
     futuresAccountInfo(options?: { recvWindow: number }): Promise<FuturesAccountInfoResult>
     futuresPositionMode(options?: { recvWindow: number }): Promise<PositionModeResult>
@@ -391,7 +427,7 @@ declare module 'binance-api-node' {
     }): Promise<FuturesLeverageResult>
     futuresMarginType(options: {
       symbol: string
-      marginType: string
+      marginType: "ISOLATED" | "CROSSED"
       recvWindow?: number
     }): Promise<FuturesMarginTypeResult>
     futuresIncome(options: {
@@ -426,6 +462,7 @@ declare module 'binance-api-node' {
       amount: number
       useServerTime?: boolean
     }): Promise<{ tranId: number }>
+    marginAccountInfo(options?: {recvWindow?: number}): Promise<IsolatedCrossAccount>
     marginIsolatedAccount(options?: {
       symbols?: string
       recvWindow?: number
@@ -495,6 +532,10 @@ declare module 'binance-api-node' {
       transform?: boolean,
     ) => ReconnectingWebSocketHandler
     ticker: (
+      pair: string | string[],
+      callback: (ticker: Ticker) => void,
+    ) => ReconnectingWebSocketHandler
+    futuresTicker: (
       pair: string | string[],
       callback: (ticker: Ticker) => void,
     ) => ReconnectingWebSocketHandler
@@ -767,8 +808,10 @@ declare module 'binance-api-node' {
     | 'LIMIT_MAKER'
     | 'MARKET'
     | 'STOP'
+    | 'STOP_LOSS_LIMIT'
     | 'STOP_MARKET'
     | 'TAKE_PROFIT_MARKET'
+    | 'TAKE_PROFIT_LIMIT'
     | 'TRAILING_STOP_MARKET'
 
   export type ListOrderStatus = 'EXECUTING' | 'ALL_DONE' | 'REJECT'
@@ -1030,6 +1073,17 @@ declare module 'binance-api-node' {
     updateTime: number
   }
 
+  export interface QueryOrderOcoResult {
+    orderListId: number
+    contingencyType: ContingencyType
+    listStatusType: ListStatusType
+    listOrderStatus: ListOrderStatus
+    listClientOrderId: string
+    transactionTime: number
+    symbol: string
+    orders: Order[]
+  }
+
   export interface CancelOrderResult {
     symbol: string
     origClientOrderId: string
@@ -1044,6 +1098,18 @@ declare module 'binance-api-node' {
     timeInForce: string
     type: OrderType
     side: OrderSide
+  }
+
+  export interface CancelOrderOcoResult {
+    orderListId: number
+    contingencyType: ContingencyType
+    listStatusType: ListStatusType
+    listOrderStatus: ListOrderStatus
+    listClientOrderId: string
+    transactionTime: number
+    symbol: string
+    orders: Order[]
+    orderReports: Order[]
   }
 
   export interface AvgPriceResult {
@@ -1140,6 +1206,20 @@ declare module 'binance-api-node' {
     positionSide: string
   }
 
+  export interface LeverageBracketResult {
+    symbol: string,
+    brackets: Bracket[]
+  }
+
+  export interface Bracket {
+    bracket: number, // Notional bracket
+    initialLeverage: number, // Max initial leverage for this bracket
+    notionalCap: number, // Cap notional of this bracket
+    notionalFloor: number, // Notional threshold of this bracket 
+    maintMarginRatio: number, // Maintenance ratio for this bracket
+    cum: 0, // Auxiliary number for quick calculation 
+  }
+
   export interface FuturesBalanceResult {
     accountAlias: string
     asset: string
@@ -1222,6 +1302,26 @@ declare module 'binance-api-node' {
 
   export interface PositionModeResult {
     dualSidePosition: boolean
+  }
+
+  export interface IsolatedCrossAccount {
+    borrowEnabled: boolean,
+    marginLevel: string,
+    totalAssetOfBtc: string,
+    totalLiabilityOfBtc: string,
+    totalNetAssetOfBtc: string,
+    tradeEnabled: boolean,
+    transferEnabled: boolean,
+    userAssets: CrossAsset[],
+  }
+
+  export interface CrossAsset {
+    asset: string,
+    borrowed: string,
+    free: string,
+    interest: string,
+    locked: string,
+    netAsset: string,
   }
 
   export interface IsolatedMarginAccount {

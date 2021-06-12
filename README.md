@@ -94,8 +94,13 @@ Following examples will use the `await` form, which requires some configuration 
   - [universalTransfer](#universalTransfer)
   - [universalTransferHistory](#universalTransferHistory)
   - [assetDetail](#assetDetail)
+  - [getBnbBurn](#getBnbBurn)
+  - [setBnbBurn](#setBnbBurn)
   - [dustTransfer](#dustTransfer)
+  - [accountCoins](#accountCoins)
 - [Margin](#margin)
+  - [marginAccountInfo](#marginAccountInfo)
+  - [marginLoan](#marginLoan)
   - [marginRepay](#marginRepay)
   - [marginIsolatedAccount](#marginIsolatedAccount)
   - [marginMaxBorrow](#marginMaxBorrow)
@@ -107,6 +112,7 @@ Following examples will use the `await` form, which requires some configuration 
   - [futuresAllOrders](#futuresAllOrders)
   - [futuresAccountBalance](#futuresAccountBalance)
   - [futuresUserTrades](#futuresUserTrades)
+  - [futuresLeverageBracket](#futuresLeverageBracket)
   - [futuresLeverage](#futuresLeverage)
   - [futuresMarginType](#futuresMarginType)
   - [futuresPositionMargin](#futuresPositionMargin)
@@ -180,11 +186,16 @@ console.log(await client.time())
 
 #### exchangeInfo
 
-Get the current exchange trading rules and symbol information.
+Get the current exchange trading rules and symbol information. You can optionally
+pass a symbol to only retrieve info of this specific one.
 
 ```js
 console.log(await client.exchangeInfo())
 ```
+
+| Param  | Type   | Required | Default |
+| ------ | ------ | -------- | ------- |
+| symbol | String | false    |         |
 
 <details>
 <summary>Output</summary>
@@ -512,6 +523,8 @@ console.log(await client.allBookTickers())
 
 </details>
 
+### Futures Public REST Endpoints
+
 #### futures ping
 
 Test connectivity to the API.
@@ -661,7 +674,7 @@ console.log(await client.futuresAggTrades({ symbol: 'ETHBTC' }))
 
 | Param     | Type   | Required | Default | Description                                              |
 | --------- | ------ | -------- | ------- | -------------------------------------------------------- |
-| symbol    | String | true     |
+| symbol    | String | true     |         |                                                          |
 | fromId    | String | false    |         | ID to get aggregate trades from INCLUSIVE.               |
 | startTime | Number | false    |         | Timestamp in ms to get aggregate trades from INCLUSIVE.  |
 | endTime   | Number | false    |         | Timestamp in ms to get aggregate trades until INCLUSIVE. |
@@ -910,8 +923,8 @@ console.log(
 | timeInForce      | String | false    | `GTC`    | `FOK`, `GTC`, `IOC`                                                 |
 | newClientOrderId | String | false    |          | A unique id for the order. Automatically generated if not sent.     |
 | stopPrice        | Number | false    |          | Used with stop orders                                               |
-| activationPrice  | Number | false    |          | Used with `TRAILING_STOP_MARKET`                                               |
-| callbackRate     | Number | false    |          | Used with `TRAILING_STOP_MARKET`                             |      |
+| activationPrice  | Number | false    |          | Used with `TRAILING_STOP_MARKET`                                    |
+| callbackRate     | Number | false    |          | Used with `TRAILING_STOP_MARKET`                                    |
 | newOrderRespType | String | false    | `RESULT` | Returns more complete info of the order. `ACK`, `RESULT`, or `FULL` |
 | icebergQty       | Number | false    |          | Used with iceberg orders                                            |
 | recvWindow       | Number | false    |          |                                                                     |
@@ -923,9 +936,11 @@ Additional mandatory parameters based on `type`:
 | `LIMIT`                | `timeInForce`, `quantity`, `price`              |
 | `MARKET`               | `quantity`                                      |
 | `STOP`                 | `quantity`, `price`, `stopPrice`                |
+| `STOP_LOSS_LIMIT`      | `timeInForce`, `quantity`, `price`, `stopPrice` |
 | `STOP_LOSS_MARKET`     | `stopPrice`                                     |
 | `TAKE_PROFIT`          | `quantity`, `price`, `stopPrice`                |
 | `TAKE_PROFIT_MARKET`   | `stopPrice`                                     |
+| `STOP_PROFIT_LIMIT`    | `timeInForce`, `quantity`, `price`, `stopPrice` |
 | `LIMIT_MAKER`          | `quantity`, `price`                             |
 | `TRAILING_STOP_MARKET` | `callbackRate`, `activationPrice`               |
 
@@ -1558,8 +1573,8 @@ Get asset snapshot for the current authenticated account.
 
 ```js
 console.log(
-  await client.accountSnapshot({ 
-    "type": "SPOT" 
+  await client.accountSnapshot({
+    "type": "SPOT"
   });
 )
 ```
@@ -1647,13 +1662,13 @@ console.log(await client.withdrawHistory())
 
 | Param      | Type   | Required | Description                                                                                                |
 | ---------- | ------ | -------- | ---------------------------------------------------------------------------------------------------------- |
-| asset      | String | false    |
+| asset      | String | false    |                                                                                                            |
 | status     | Number | false    | 0 (0: Email Sent, 1: Cancelled 2: Awaiting Approval, 3: Rejected, 4: Processing, 5: Failure, 6: Completed) |
-| offset     | Number | false    |
-| limit      | Number | false    |
-| startTime  | Number | false    |
-| endTime    | Number | false    |
-| recvWindow | Number | false    |
+| offset     | Number | false    |                                                                                                            |
+| limit      | Number | false    |                                                                                                            |
+| startTime  | Number | false    |                                                                                                            |
+| endTime    | Number | false    |                                                                                                            |
+| recvWindow | Number | false    |                                                                                                            |
 
 <details>
 <summary>Output</summary>
@@ -1898,7 +1913,7 @@ console.log(await client.universalTransfer({ type: 'MAIN_C2C', asset: 'USDT', am
 | type       | String | true     |
 | asset      | String | true     |
 | amount     | String | true     |
-| recvWindow | Number | true     |
+| recvWindow | Number | false    |
 
 <details>
 <summary>Output</summary>
@@ -1924,15 +1939,15 @@ console.log(await client.universalTransferHistory({ type: 'MAIN_C2C' }))
 | endTime    | Number | false    |
 | current    | Number | false    | Default 1           |
 | size       | Number | false    | Default 10, Max 100 |
-| recvWindow | Number | true     |
+| recvWindow | Number | false    |
 
 <details>
 <summary>Output</summary>
 
 ```js
 {
-  "total":2,
-  "rows":[
+  "total": 2,
+  "rows": [
     {
       "asset":"USDT",
       "amount":"1",
@@ -1974,7 +1989,7 @@ console.log(await client.assetDetail())
     "assetDetail": {
         "CTR": {
             "minWithdrawAmount": "70.00000000", //min withdraw amount
-            "depositStatus": false,//deposit status (false if ALL of networks' are false)
+            "depositStatus": false, //deposit status (false if ALL of networks' are false)
             "withdrawFee": 35, // withdraw fee
             "withdrawStatus": true, //withdraw status (false if ALL of networks' are false)
             "depositTip": "Delisted, Deposit Suspended" //reason
@@ -1984,9 +1999,55 @@ console.log(await client.assetDetail())
             "depositStatus": true,
             "withdrawFee": 0.01,
             "withdrawStatus": true
-        }   
+        }
     }
-} 
+}
+```
+
+</details>
+
+#### getBnbBurn
+
+```js
+console.log(await client.getBnbBurn())
+```
+
+| Param      | Type     | Required | Description         |
+| ---------- | -------- | -------- | ------------------- |
+| recvWindow | Number   | false    | No more than 60000  |
+
+<details>
+<summary>Output</summary>
+
+```js
+{
+   "spotBNBBurn":true,
+   "interestBNBBurn": false
+}
+```
+
+</details>
+
+#### setBnbBurn
+
+```js
+console.log(await client.setBnbBurn({ spotBNBBurn: "true" }))
+```
+
+| Param           | Type     | Required | Description         |
+| --------------- | -------- | -------- | ------------------- |
+| spotBNBBurn     | String   | false    | "true" or "false"; Determines whether to use BNB to pay for trading fees on SPOT |
+| interestBNBBurn | String   | false    | "true" or "false"; Determines whether to use BNB to pay for margin loan's interest  |
+| recvWindow      | Number   | false    | No more than 60000 |
+
+<details>
+<summary>Output</summary>
+
+```js
+{
+   "spotBNBBurn":true,
+   "interestBNBBurn": false
+}
 ```
 
 </details>
@@ -2000,7 +2061,7 @@ console.log(await client.dustTransfer({ asset: ['ETH', 'LTC', 'TRX'] }))
 | Param      | Type     | Required | Description         |
 | ---------- | -------- | -------- | ------------------- |
 | asset      | [String] | true     |
-| recvWindow | Number   | true     |
+| recvWindow | Number   | false    |
 
 <details>
 <summary>Output</summary>
@@ -2040,7 +2101,147 @@ console.log(await client.dustTransfer({ asset: ['ETH', 'LTC', 'TRX'] }))
 
 </details>
 
+#### accountCoins
+
+Retrieve account coins related information. Implemented as `getAll` in Binance Docs.
+
+```js
+console.log(await client.accountCoins())
+```
+
+| Param      | Type     | Required | Description         |
+| ---------- | -------- | -------- | ------------------- |
+| recvWindow | Number   | false    |
+
+<details>
+<summary>Output</summary>
+
+```js
+[
+    {
+        "coin": "BTC",
+        "depositAllEnable": true,
+        "free": "0.08074558",
+        "freeze": "0.00000000",
+        "ipoable": "0.00000000",
+        "ipoing": "0.00000000",
+        "isLegalMoney": false,
+        "locked": "0.00000000",
+        "name": "Bitcoin",
+        "networkList": [
+            {
+                "addressRegex": "^(bnb1)[0-9a-z]{38}$",
+                "coin": "BTC",
+                "depositDesc": "Wallet Maintenance, Deposit Suspended", // shown only when "depositEnable" is false.
+                "depositEnable": false,
+                "isDefault": false,
+                "memoRegex": "^[0-9A-Za-z\\-_]{1,120}$",
+                "minConfirm": 1,  // min number for balance confirmation
+                "name": "BEP2",
+                "network": "BNB",
+                "resetAddressStatus": false,
+                "specialTips": "Both a MEMO and an Address are required to successfully deposit your BEP2-BTCB tokens to Binance.",
+                "unLockConfirm": 0,  // confirmation number for balance unlock 
+                "withdrawDesc": "Wallet Maintenance, Withdrawal Suspended", // shown only when "withdrawEnable" is false.
+                "withdrawEnable": false,
+                "withdrawFee": "0.00000220",
+                "withdrawMin": "0.00000440"
+            },
+            {
+                "addressRegex": "^[13][a-km-zA-HJ-NP-Z1-9]{25,34}$|^(bc1)[0-9A-Za-z]{39,59}$",
+                "coin": "BTC",
+                "depositEnable": true,
+                "insertTime": 1563532929000,
+                "isDefault": true,
+                "memoRegex": "",
+                "minConfirm": 1,
+                "name": "BTC",
+                "network": "BTC",
+                "resetAddressStatus": false,
+                "specialTips": "",
+                "unLockConfirm": 2,
+                "updateTime": 1571014804000, 
+                "withdrawEnable": true,
+                "withdrawFee": "0.00050000",
+                "withdrawIntegerMultiple": "0.00000001",
+                "withdrawMin": "0.00100000"
+            }
+        ],
+        "storage": "0.00000000",
+        "trading": true,
+        "withdrawAllEnable": true,
+        "withdrawing": "0.00000000"
+    }
+]
+```
+
+</details>
+
 ### Margin
+
+#### marginAccountInfo
+
+Query cross margin account details (USER_DATA)
+
+```js
+console.log(await client.marginAccountInfo());
+```
+
+| Param | Type   | Required | Description    |
+| ----- | ------ | -------- | -------------- |
+| recvWindow | Number | false     | No more than 60000 |
+
+<details>
+<summary>Output</summary>
+
+```js
+{
+      "borrowEnabled": true,
+      "marginLevel": "11.64405625",
+      "totalAssetOfBtc": "6.82728457",
+      "totalLiabilityOfBtc": "0.58633215",
+      "totalNetAssetOfBtc": "6.24095242",
+      "tradeEnabled": true,
+      "transferEnabled": true,
+      "userAssets": [
+          {
+              "asset": "BTC",
+              "borrowed": "0.00000000",
+              "free": "0.00499500",
+              "interest": "0.00000000",
+              "locked": "0.00000000",
+              "netAsset": "0.00499500"
+          },
+          {
+              "asset": "BNB",
+              "borrowed": "201.66666672",
+              "free": "2346.50000000",
+              "interest": "0.00000000",
+              "locked": "0.00000000",
+              "netAsset": "2144.83333328"
+          },
+          {
+              "asset": "ETH",
+              "borrowed": "0.00000000",
+              "free": "0.00000000",
+              "interest": "0.00000000",
+              "locked": "0.00000000",
+              "netAsset": "0.00000000"
+          },
+          {
+              "asset": "USDT",
+              "borrowed": "0.00000000",
+              "free": "0.00000000",
+              "interest": "0.00000000",
+              "locked": "0.00000000",
+              "netAsset": "0.00000000"
+          }
+      ]
+}
+```
+
+</details>
+
 
 #### marginLoan
 
@@ -2050,10 +2251,10 @@ Create a loan for margin account.
 console.log(await client.marginLoan({ asset: 'BTC', amount:'0.0001' }));
 ```
 
-| Param | Type   | Required | Description    |
-| ----- | ------ | -------- | -------------- |
-| asset | String | true     | The asset name |
-| amount | Number | true     | 
+| Param  | Type   | Required | Description    |
+| ------ | ------ | -------- | -------------- |
+| asset  | String | true     | The asset name |
+| amount | Number | true     |
 
 
 <details>
@@ -2075,10 +2276,10 @@ Repay loan for margin account.
 console.log(await client.marginRepay({ asset: 'BTC', amount:'0.0001' }));
 ```
 
-| Param | Type   | Required | Description    |
-| ----- | ------ | -------- | -------------- |
-| asset | String | true     | The asset name |
-| amount | Number | true     | 
+| Param  | Type   | Required | Description    |
+| ------ | ------ | -------- | -------------- |
+| asset  | String | true     | The asset name |
+| amount | Number | true     |
 
 
 <details>
@@ -2686,6 +2887,46 @@ console.log(
 ]
 ```
 
+</details>
+
+#### futuresLeverageBracket
+
+Get notional and leverage brackets.
+
+```js
+console.log(
+  await client.futuresLeverageBracket({
+    symbol: 'ETHBTC', // Optional
+  }),
+)
+```
+
+| Param      | Type   | Mandatory | Description                                               |
+| ---------- | ------ | --------- | ----------------------------------------------------------|
+| symbol     | STRING | NO        | Use if you are only interested in brackets for one symbol |
+| recvWindow | LONG   | NO        |                                                           |
+
+<details>
+<summary>Output</summary>
+
+```js
+[
+    {
+        "symbol": "ETHUSDT",
+        "brackets": [
+            {
+                "bracket": 1,   // Notional bracket
+                "initialLeverage": 75,  // Max initial leverage for this bracket
+                "notionalCap": 10000,  // Cap notional of this bracket
+                "notionalFloor": 0,  // Notional threshold of this bracket 
+                "maintMarginRatio": 0.0065, // Maintenance ratio for this bracket
+                "cum":0 // Auxiliary number for quick calculation 
+
+            },
+        ]
+    }
+]
+```
 </details>
 
 ### WebSockets
