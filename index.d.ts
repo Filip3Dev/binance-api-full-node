@@ -153,6 +153,68 @@ declare module 'binance-api-node' {
     success: boolean
   }
 
+  export interface FixedProjectPositionResponse {
+    fixedProjectPositionList: {
+      asset: string
+      canTransfer: boolean
+      createTimestamp: number
+      duration: number
+      endTime: number
+      interest: string
+      interestRate: string
+      lot: number
+      positionId: number
+      principal: string
+      projectId: string
+      projectName: string
+      purchaseTime: number
+      redeemDate: string
+      startTime: number
+      status: string
+      type: string
+    }[]
+  }
+
+  export interface GetFixedAndProjectPositionResponse {
+    getFixedAndProjectPositionList: {
+      asset: string
+      displayPriority: number
+      duration: number
+      interestPerLot: string
+      interestRate: string
+      lotSize: string
+      lotsLowLimit: number
+      lotsPurchased: number
+      lotsUpLimit: number
+      maxLotsPerUser: number
+      needKyc: boolean
+      projectId: string
+      projectName: string
+      status: string
+      type: string
+      withAreaLimitation: boolean
+    }[]
+  }
+
+  export interface GetFlexibleProductPositionResponse {
+    getFlexibleProductPositionList: {
+      annualInterestRate: string
+      asset: string
+      avgAnnualInterestRate: string
+      canRedeem: boolean
+      dailyInterestRate: string
+      freeAmount: string
+      freezeAmount: string
+      lockedAmount: string
+      productId: string
+      productName: string
+      redeemingAmount: string
+      todayPurchasedAmount: string
+      totalAmount: string
+      totalInterest: string
+    }[]
+  }
+
   export interface AssetDetail {
     success: boolean
     assetDetail: {
@@ -356,9 +418,10 @@ declare module 'binance-api-node' {
       startTime?: number
       endTime?: number
     }): Promise<WithdrawHistoryResponse>
-    liquidPair(options: {
-      poolId: number
-    }): Promise<LiquidityResponse>
+    liquidPair(options: { poolId: number }): Promise<LiquidityResponse>
+    fixedProjectPosition(options: { asset: string, status?: string }): Promise<FixedProjectPositionResponse>
+    getFixedAndProjectPosition(options: { type: string, status?: string }): Promise<GetFixedAndProjectPositionResponse>
+    getFlexibleProductPosition(options: { asset: string }): Promise<getFlexibleProductPositionResponse>
     depositHistory(options: {
       asset: string
       status?: number
